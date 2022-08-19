@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center p-4">
     <!-- Header -->
-    <nav class="bg-gray-300 w-full md:w-3/4 p-4 rounded-lg shadow-sm flex">
+    <nav class="bg-gray-100 w-full md:w-3/4 p-4 rounded-lg shadow-md flex">
       <vs-button @click="$router.go(-1)">
         <i class="bx bx-arrow-back mr-1"></i> Back
       </vs-button>
@@ -45,7 +45,7 @@
           </div>
           <div class="flex justify-between w-full">
             <strong>Score</strong>
-            <span>{{ movie.popularity }}</span>
+            <span>{{ movie.vote_average }}</span>
           </div>
           <div class="flex justify-between w-full">
             <strong>Genres</strong>
@@ -73,12 +73,12 @@
       </div>
 
       <!-- Description -->
-      <p class="mt-10 shadow-lg p-4 rounded-md">{{ movie.overview }}</p>
+      <p class="mt-10">{{ movie.overview }}</p>
 
       <!-- Credits -->
       <div class="flex flex-col mt-10">
         <strong>Credit:</strong>
-        <p>{{ itemSplitter(movie.credits.cast.slice(0, 10)) }} ...</p>
+        <p>{{ itemSplitter(movie.casts.slice(0, 10)) }}</p>
       </div>
     </section>
 
@@ -89,6 +89,7 @@
 
 <script>
 import TheLoading from '../../components/UI/TheLoading.vue';
+
 export default {
   name: 'MoivePage',
   components: { TheLoading },
@@ -127,7 +128,13 @@ export default {
           credits.json(),
         ]);
         this.movie = movie;
-        this.movie.credits = creditsData;
+
+        // Sort casts by popularity
+        const casts = creditsData.cast.sort(
+          (a, b) => b.popularity - a.popularity
+        );
+        this.movie.casts = casts;
+
         this.loading = false;
       } catch (error) {
         this.loading = false;
