@@ -8,8 +8,15 @@
       v-if="moviesPage.length && !loading"
       class="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 place-content-center place-self-center"
     >
-      <TheCard v-for="movie in moviesPage" :key="movie.id" :movie="movie" />
+      <TheCard
+        v-for="movie in moviesPage"
+        :key="movie.id"
+        :movie="movie"
+        :genres="genres"
+      />
     </div>
+
+    <!-- Alert -->
     <vs-alert v-if="moviesPage.length < 1 && !loading" shadow class="mt-10">
       <template #title> Oops! </template>
       <b>No movies found.</b> Please select different dates.
@@ -32,7 +39,7 @@
 </template>
 
 <script>
-import SearchBar from '../components/UI/SearchBar.vue';
+import SearchBar from '../components/Home/SearchBar.vue';
 import TheCard from '../components/UI/TheCard.vue';
 import TheLoading from '../components/UI/TheLoading.vue';
 
@@ -55,6 +62,7 @@ export default {
       loading: false,
       startDate: null,
       endDate: null,
+      genres: [],
     };
   },
   computed: {
@@ -68,6 +76,7 @@ export default {
     },
   },
   created() {
+    this.getGenres();
     this.getMovies();
   },
   methods: {
@@ -97,18 +106,27 @@ export default {
       }
 
       // Get movies from API
-      const response = await fetch(
-        `${process.env.baseUrl}/discover/movie?api_key=${
-          process.env.apiKey
-        }&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}&with_watch_monetization_types=flatrate${
-          startDate ? `&primary_release_date.gte=${startDate}` : ''
-        }${endDate ? `&primary_release_date.lte=${endDate}` : ''}`
-      );
-      const data = await response.json();
-      this.movies = [...this.movies, ...data.results];
-      this.moviesPage = this.movies.slice((page - 1) * 20, page * 20);
-      this.totalPages = data.total_pages;
-      this.totalResults = data.total_results;
+      try {
+        const response = await fetch(
+          `${process.env.baseUrl}/discover/movie?api_key=${
+            process.env.apiKey
+          }&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}&with_watch_monetization_types=flatrate${
+            startDate ? `&primary_release_date.gte=${startDate}` : ''
+          }${endDate ? `&primary_release_date.lte=${endDate}` : ''}`
+        );
+        const data = await response.json();
+        this.movies = [...this.movies, ...data.results];
+        this.moviesPage = this.movies.slice((page - 1) * 20, page * 20);
+        this.totalPages = data.total_pages;
+        this.totalResults = data.total_results;
+      } catch (error) {
+        this.$vs.notification({
+          title: 'Oops!',
+          color: 'primary',
+          progress: 'auto',
+          text: 'Something went wrong. Please try again.',
+        });
+      }
 
       // If page not cached, get it
       if (!this.cachedPages.includes(page)) {
@@ -116,6 +134,22 @@ export default {
       }
 
       this.loading = false;
+    },
+    async getGenres() {
+      try {
+        const response = await fetch(
+          `${process.env.baseUrl}/genre/movie/list?api_key=${process.env.apiKey}&language=en-US`
+        );
+        const data = await response.json();
+        this.genres = data.genres;
+      } catch (error) {
+        this.$vs.notification({
+          title: 'Oops!',
+          color: 'primary',
+          progress: 'auto',
+          text: 'Something went wrong. Please try again.',
+        });
+      }
     },
   },
 };

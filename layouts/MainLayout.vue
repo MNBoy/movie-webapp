@@ -6,6 +6,11 @@
 
 <script>
 export default {
+  head() {
+    return {
+      title: 'Movie App',
+    };
+  },
   mounted() {
     this.$nextTick(() => {
       this.$nuxt.$loading.start();
