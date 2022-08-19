@@ -12,7 +12,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'movie-app',
+    title: 'Movie app',
     htmlAttrs: {
       lang: 'en',
     },
@@ -26,10 +26,14 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: [
+    '~/assets/css/main.css',
+    'vuesax/dist/vuesax.css',
+    'boxicons/css/boxicons.min.css',
+  ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: ['~/plugins/vuesax'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -47,4 +51,10 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
-}
+
+  // Env
+  env: {
+    baseUrl: process.env.BASE_URL || 'https://api.themoviedb.org/3',
+    apiKey: process.env.API_KEY || 'f62f750b70a8ef11dad44670cfb6aa57',
+  },
+};
